@@ -37,10 +37,6 @@ float leftmotorval = 0;
 float rightmotorval = 0;
 
 // target positions for extremities, lengths in inches, angles in degrees
-float armLength, armAngle, armBaseRot, ggripperWrist;
-float rArmLength, rArmAngle, rArmBaseRot, rGripperWrist;
-float cArmLength, cArmAngle, cArmBaseRot, cGripperWrist;
-float gripperarmrotate;
 int currentstage = -2;
 // end of "global" varible declaration
 
@@ -117,8 +113,8 @@ float whichismax(float left, float right) {
 
 //MTR - move the motors - moves motors in normal scope
 void movethemotors() {
-	motor[motorLeftF] = leftmotorval;
-	motor[motorLeftR] = leftmotorval;
+	motor[motorLeftF] = leftmotorval * -1;
+	motor[motorLeftR] = leftmotorval * -1;
 	motor[motorRightF] = rightmotorval;
 	motor[motorRightR] = rightmotorval;
 }
@@ -168,8 +164,33 @@ void powercontrol () {
 	}
 }
 
-void panning_joystick () {
+float leftWheelType, rightWheelType;
 
+void moveMechaiumWheels(float x, float y)
+{
+	float xIn = x * 100;
+	float yIn = y * 100;
+	// Negate y for the joystick.
+	//yIn = -yIn;
+
+
+	leftWheelType = xIn + yIn;
+	rightWheelType = -xIn + yIn;
+
+	//leftWheelType = normalizeFloats(leftWheelType);
+	//rightWheelType = normalizeFloats(rightWheelType);
+
+	motor[motorLeftF] = leftWheelType;
+	motor[motorRightF] = rightWheelType;
+	motor[motorLeftR] = rightWheelType;
+	motor[motorRightR] = leftWheelType;
+
+}
+
+
+
+void panning_joystick () {
+	moveMechaiumWheels((float)joystick.joy1_x2 / 128, (float)joystick.joy1_y2 / 128);
 }
 
 
@@ -178,11 +199,11 @@ bool withinThreshhold(int number) {
 }
 
 bool joy1_used () {
-	return (!withinThreshhold(joystick.joy1_x1)) & (!withinThreshhold(joystick.joy1_y1));
+	return (!withinThreshhold(joystick.joy1_x1)) || (!withinThreshhold(joystick.joy1_y1));
 }
 
 bool joy2_used () {
-	return (!withinThreshhold(joystick.joy1_x2)) & (!withinThreshhold(joystick.joy1_y2));
+	return (!withinThreshhold(joystick.joy1_x2)) || (!withinThreshhold(joystick.joy1_y2));
 }
 
 void stopTheRobot() {
@@ -197,8 +218,9 @@ void base_movement () {
 		leftJoystickDrive();
 	} else if (joy2_used()) {
 		panning_joystick();
-	} else (
+	} else {
 		stopTheRobot();
+	}
 }
 
 // BC - battery check
@@ -229,8 +251,6 @@ task main() {
 		//	if (firstController) PlayImmediateTone(2000, 1);
 		//	firstController = false;
 		//}
-		driving_joystick();
-
 		base_movement();
 
 		batterycheck();
