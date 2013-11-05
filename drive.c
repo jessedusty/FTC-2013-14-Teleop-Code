@@ -36,7 +36,12 @@ float newrightstickval = 0;
 float leftmotorval = 0;
 float rightmotorval = 0;
 
-//rrentstage = -2;
+// target positions for extremities, lengths in inches, angles in degrees
+float armLength, armAngle, armBaseRot, ggripperWrist;
+float rArmLength, rArmAngle, rArmBaseRot, rGripperWrist;
+float cArmLength, cArmAngle, cArmBaseRot, cGripperWrist;
+float gripperarmrotate;
+int currentstage = -2;
 // end of "global" varible declaration
 
 // make sure that the values going to the motor arn't less than -100 or greater than 100
@@ -163,88 +168,8 @@ void powercontrol () {
 	}
 }
 
-
-
-int leftWheelType, rightWheelType;
-
-
-float atan2e(float x, float y)
-{
-	float phi;   //phi=radians;
-
-	if (x>0) {phi=atan(y/x);}
-	else
-		if ((x<0)&&(y>=0))  {phi=PI+atan(y/x);}
-	else
-		if ((x<0)&&(y<0))   {phi=-PI+atan(y/x);}
-	else
-		if ((x==0)&&(y>0))  {phi=PI/2;}
-	else
-		if ((x==0)&&(y<0))  {phi=-PI/2;}
-	else
-		if ((x==0)&&(y==0)) {phi=0;}
-
-	return phi;
-}
-
-// ArcusTangens; angle by degrees
-
-float atan2Degrees(float x, float y)
-{
-	return(radiansToDegrees(atan2(x,y)));
-}
-
-float toDegrees (float radians) {
-	return radians * (180 * PI);
-}
-
-float toRadians (float degrees) {
-	return degrees * (PI * 180);
-}
-
-int withinVals(int number) {
-	if (number > 100) number = 100;
-	if (number < -100) number = -100;
-	return number;
-}
-
-float magnitude(int xjoystick, int yjoystick) {
-	return (sqrt(pow(xjoystick,2) + pow(yjoystick, 2))) / 100;
-}
-
-
-void moveMotors() {
-	motor[motorLeftF] = leftWheelType;
-	motor[motorRightR] = leftWheelType;
-	motor[motorRightF] = rightWheelType;
-	motor[motorLeftR] = rightWheelType;
-}
-float theta;
-float xjoy1, yjoy1;
-void calculateOmniWheelPositions(int xjoystick, int yjoystick) {
-
-	theta = ((atan2Degrees(xjoystick, yjoystick) - 90) * -1) - 90;
-	xjoy1 = xjoystick;
-	yjoy1 = yjoystick;
-	float leftWheelAR = (sinDegrees(theta + 45) / 0.7071067811865475) * 100;
-	float rightWheelAR = (cosDegrees(theta + 4) / 0.7071067811865475) * 100;
-	leftWheelAR = withinVals((int)leftWheelAR);
-	rightWheelAR = withinVals((int)rightWheelAR);
-
-	float calculatedMagnitude = magnitude(xjoystick, yjoystick);
-	leftWheelAR *= calculatedMagnitude;
-	rightWheelAR *= calculatedMagnitude;
-
-	leftWheelType = leftWheelAR;
-	rightWheelType = rightWheelAR;
-
-	moveMotors();
-}
-
-
-
 void panning_joystick () {
-	calculateOmniWheelPositions(withinVals(joystick.joy1_x2), withinVals(joystick.joy1_y2));
+
 }
 
 
@@ -253,11 +178,11 @@ bool withinThreshhold(int number) {
 }
 
 bool joy1_used () {
-	return (!withinThreshhold(joystick.joy1_x1)) && (!withinThreshhold(joystick.joy1_y1));
+	return (!withinThreshhold(joystick.joy1_x1)) & (!withinThreshhold(joystick.joy1_y1));
 }
 
 bool joy2_used () {
-	return (!withinThreshhold(joystick.joy1_x2)) && (!withinThreshhold(joystick.joy1_y2));
+	return (!withinThreshhold(joystick.joy1_x2)) & (!withinThreshhold(joystick.joy1_y2));
 }
 
 void stopTheRobot() {
@@ -267,14 +192,13 @@ void stopTheRobot() {
 	motor[motorRightR] = 0;
 }
 
-void base_movement() {
-	//if (joy1_used() & !joy2_used()) {
-	//leftJoystickDrive();
-	//} else if (joy2_used()) {
-	panning_joystick();
-	//	} else {
-	//	stopTheRobot();
-	//	}
+void base_movement () {
+	if (joy1_used() & !joy2_used()) {
+		leftJoystickDrive();
+	} else if (joy2_used()) {
+		panning_joystick();
+	} else (
+		stopTheRobot();
 }
 
 // BC - battery check
@@ -305,10 +229,11 @@ task main() {
 		//	if (firstController) PlayImmediateTone(2000, 1);
 		//	firstController = false;
 		//}
+		driving_joystick();
 
 		base_movement();
 
-		//batterycheck();
+		batterycheck();
 		//powercontrol();
 		runLoopPause();
 
