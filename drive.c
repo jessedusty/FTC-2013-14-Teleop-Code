@@ -4,8 +4,8 @@
 #pragma config(Motor,  mtr_S1_C2_2,     motorRightR,   tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_1,     motorLeftF,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     motorLeftR,    tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     motorH,        tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     motorI,        tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_1,     flagMotor,     tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_2,     liftMotor,     tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C1_1,    servo1,               tServoNone)
 #pragma config(Servo,  srvo_S1_C1_2,    servo2,               tServoNone)
 #pragma config(Servo,  srvo_S1_C1_3,    servo3,               tServoNone)
@@ -232,6 +232,30 @@ void base_movement () {
 	}
 }
 
+void appendages() {
+	// lift motor
+	if (joy1Btn(4) && !joy1Btn(2)) {
+		motor[liftMotor] = -100;
+	} else if (!joy1Btn(4) && joy1Btn(2)) {
+		motor[liftMotor] = 50;
+	} else if (joy1Btn(10)) {
+		motor[liftMotor] = 100;
+	} else {
+		motor[liftMotor] = 0;
+	}
+
+	// flag motor
+
+	if (joy1Btn(1) && !joy1Btn(3)) {
+		motor[flagMotor] = -100;
+	} else if (!joy1Btn(1) && joy1Btn(3)) {
+		motor[flagMotor] = 100;
+	} else {
+		motor[flagMotor] = 0;
+	}
+
+}
+
 // BC - battery check
 void batterycheck () {
 	if (externalBattery == -1) PlayImmediateTone(4000, 1);
@@ -263,6 +287,8 @@ task main() {
 		base_movement();
 
 		batterycheck();
+
+		appendages();
 		//powercontrol();
 		runLoopPause();
 
