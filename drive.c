@@ -234,7 +234,7 @@ void base_movement () {
 
 int lastTiltMotorPos = 90;
 
-void appendages() {
+void driverJoystick() {
 	// lift motor
 	if (joy1Btn(4) && !joy1Btn(2)) {
 		motor[liftMotor] = -100;
@@ -242,23 +242,23 @@ void appendages() {
 		motor[liftMotor] = 50;
 	} else if (joy1Btn(10)) {
 		motor[liftMotor] = 100;
-	} else {
+	} else if (!joy2Btn(4) && !joy2Btn(2)){
 		motor[liftMotor] = 0;
 	}
 
 	// upper lift motor
 
-	if (joy1Btn(5) && !joy1Btn(6)) {
+	if (joy1Btn(5) && !joy1Btn(7)) {
 		servo[upperLiftMotor] = 0;
-	} else if (!joy1Btn(5) && joy1Btn(6)) {
+	} else if (!joy1Btn(5) && joy1Btn(7)) {
 		servo[upperLiftMotor] = 180;
-	} else {
+	} else if (!joy2Btn(5) && !joy2Btn(7)) {
 		servo[upperLiftMotor] = 122;
 	}
 
-	if (joy1Btn(7) && !joy1Btn(8)) {
+	if (joy1Btn(6) && !joy1Btn(8)) {
 		lastTiltMotorPos += 10;
-	} else if (!joy1Btn(7) && joy1Btn(8)) {
+	} else if (!joy1Btn(6) && joy1Btn(8)) {
 		lastTiltMotorPos -= 10;
 	}
 	if (lastTiltMotorPos > 189) lastTiltMotorPos = 189;
@@ -272,9 +272,53 @@ void appendages() {
 		motor[flagMotor] = -100;
 	} else if (!joy1Btn(1) && joy1Btn(3)) {
 		motor[flagMotor] = 100;
-	} else {
+	} else if(!joy2Btn(1) && !joy2Btn(3)) {
 		motor[flagMotor] = 0;
 	}
+
+}
+
+void accessJoystick() {
+	// lift motor
+		if (joy2Btn(4) && !joy2Btn(2)) {
+		motor[liftMotor] = -100;
+	} else if (!joy2Btn(4) && joy2Btn(2)) {
+		motor[liftMotor] = 50;
+	} else if (joy2Btn(10)) {
+		motor[liftMotor] = 100;
+	}
+	// upper lift motor
+
+	if (joy2Btn(5) && !joy2Btn(7)) {
+		servo[upperLiftMotor] = 0;
+	} else if (!joy2Btn(5) && joy2Btn(7)) {
+		servo[upperLiftMotor] = 180;
+	}
+
+	if (joy2Btn(6) && !joy2Btn(8)) {
+		lastTiltMotorPos += 10;
+	} else if (!joy2Btn(6) && joy2Btn(8)) {
+		lastTiltMotorPos -= 10;
+	}
+	if (lastTiltMotorPos > 189) lastTiltMotorPos = 189;
+	if (lastTiltMotorPos < 110) lastTiltMotorPos = 110;
+
+	//servo[trayTiltMotor] = lastTiltMotorPos;
+
+	// flag motor
+
+	if (joy2Btn(1) && !joy2Btn(3)) {
+		motor[flagMotor] = -100;
+	} else if (!joy2Btn(1) && joy2Btn(3)) {
+		motor[flagMotor] = 100;
+	}
+}
+
+
+void appendages() {
+
+	driverJoystick();
+	accessJoystick();
 
 }
 
