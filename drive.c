@@ -4,10 +4,10 @@
 #pragma config(Motor,  mtr_S1_C2_2,     motorRightR,   tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_1,     motorLeftF,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     motorLeftR,    tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     flagMotor,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     liftMotor,     tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S1_C1_1,    servo1,               tServoNone)
-#pragma config(Servo,  srvo_S1_C1_2,    servo2,               tServoNone)
+#pragma config(Motor,  mtr_S1_C4_1,     liftMotor,     tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_2,     flagMotor,     tmotorTetrix, openLoop)
+#pragma config(Servo,  srvo_S1_C1_1,    trayTiltMotor,        tServoStandard)
+#pragma config(Servo,  srvo_S1_C1_2,    upperLiftMotor,       tServoContinuousRotation)
 #pragma config(Servo,  srvo_S1_C1_3,    servo3,               tServoNone)
 #pragma config(Servo,  srvo_S1_C1_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C1_5,    servo5,               tServoNone)
@@ -232,6 +232,8 @@ void base_movement () {
 	}
 }
 
+int lastTiltMotorPos = 90;
+
 void appendages() {
 	// lift motor
 	if (joy1Btn(4) && !joy1Btn(2)) {
@@ -243,6 +245,26 @@ void appendages() {
 	} else {
 		motor[liftMotor] = 0;
 	}
+
+	// upper lift motor
+
+	if (joy1Btn(5) && !joy1Btn(6)) {
+		servo[upperLiftMotor] = 0;
+	} else if (!joy1Btn(5) && joy1Btn(6)) {
+		servo[upperLiftMotor] = 180;
+	} else {
+		servo[upperLiftMotor] = 122;
+	}
+
+	if (joy1Btn(7) && !joy1Btn(8)) {
+		lastTiltMotorPos += 10;
+	} else if (!joy1Btn(7) && joy1Btn(8)) {
+		lastTiltMotorPos -= 10;
+	}
+	if (lastTiltMotorPos > 189) lastTiltMotorPos = 189;
+	if (lastTiltMotorPos < 110) lastTiltMotorPos = 110;
+
+	servo[trayTiltMotor] = lastTiltMotorPos;
 
 	// flag motor
 
