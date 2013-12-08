@@ -34,6 +34,9 @@ bool driverslew = true;
 bool firstController = false; // designates wether the drive mode is controller 1 or controller 2 for single control operation
 
 bool heighthold = false;
+
+int currentLiftPos = 0;
+
 // values set throughout the program
 
 float leftstickval = 0;
@@ -173,7 +176,8 @@ void powercontrol () {
 	}
 }
 
-float leftWheelType, rightWheelType;
+
+int leftWheelType, rightWheelType;
 
 void moveMechaiumWheels(float x, float y)
 {
@@ -236,7 +240,8 @@ int lastTiltMotorPos = 90;
 
 void driverJoystick() {
 	// lift motor
-	if (joy1Btn(4) && !joy1Btn(2)) {
+
+	if (joy1Btn(4) && !joy1Btn(2) && currentLiftPos < 4000) {
 		motor[liftMotor] = -100;
 	} else if (!joy1Btn(4) && joy1Btn(2)) {
 		motor[liftMotor] = 50;
@@ -245,6 +250,7 @@ void driverJoystick() {
 	} else if (!joy2Btn(4) && !joy2Btn(2)){
 		motor[liftMotor] = 0;
 	}
+
 
 	// upper lift motor
 
@@ -280,7 +286,7 @@ void driverJoystick() {
 
 void accessJoystick() {
 	// lift motor
-		if (joy2Btn(4) && !joy2Btn(2)) {
+		if (joy2Btn(4) && !joy2Btn(2) && currentLiftPos < 4000) {
 		motor[liftMotor] = -100;
 	} else if (!joy2Btn(4) && joy2Btn(2)) {
 		motor[liftMotor] = 50;
@@ -334,12 +340,16 @@ void runLoopPause() {
 	time1[T1] = 0;
 }
 
+void encoderPositions() {
+	currentLiftPos = nMotorEncoder[flagMotor];
+}
+
 // TMT this is the main thread code
 task main() {
 
 	//waitForStart();
 	isRunning = true; // sets isRunning to true, just in case it gets set to false
-
+nMotorEncoder[flagMotor] = 0;
 	while (isRunning) {
 		getJoystickSettings(joystick);
 
@@ -351,6 +361,8 @@ task main() {
 		//	firstController = false;
 		//}
 		base_movement();
+
+		encoderPositions();
 
 		batterycheck();
 
