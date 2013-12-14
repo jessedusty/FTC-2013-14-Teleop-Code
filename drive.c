@@ -203,7 +203,7 @@ void moveMechaiumWheels(float x, float y)
 
 
 void panning_joystick () {
-	moveMechaiumWheels((float)joystick.joy1_x2 / 128, (float)joystick.joy1_y2 / 128);
+	moveMechaiumWheels((float)joystick.joy1_x2 / -128, (float)joystick.joy1_y2 / 128);
 }
 
 
